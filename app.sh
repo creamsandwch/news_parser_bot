@@ -22,6 +22,12 @@ create_venv() {
 
 # Function to update the .env file
 update_env_file() {
+    # Check if the .env file exists; if not, create an empty one
+    if [ ! -f $ENV_FILE ]; then
+        echo "Creating .env file..."
+        touch $ENV_FILE
+    fi
+
     read -p "Enter TOKEN value: " TOKEN_VALUE
     read -p "Enter CHANNEL_ID value: " CHANNEL_ID_VALUE
 
