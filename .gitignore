@@ -163,3 +163,4 @@ cython_debug/
 
 # service dirs
 news_sources/
+tests.py
