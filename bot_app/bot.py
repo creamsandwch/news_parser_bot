@@ -4,13 +4,11 @@ import telebot
 import time
 from typing import List
 
-from dotenv import load_dotenv
-
 from bot_app.parsers import AbstractParser, RBCParser
 
+from dotenv import load_dotenv
 
 load_dotenv()
-
 TOKEN = os.getenv('TOKEN')  # Ваш токен
 CHANNEL_ID = os.getenv('CHANNEL_ID')    # Ваш логин канала
 
