@@ -7,18 +7,18 @@ MAIN_SCRIPT="main.py"
 ENV_FILE="bot_app/.env"
 
 # Function to create a virtual environment and install requirements
-create_venv() {
-    echo "Creating virtual environment..."
-    python3 -m venv $VENV_DIR
+# create_venv() {
+#     echo "Creating virtual environment..."
+#     python3 -m venv $VENV_DIR
 
-    echo "Activating virtual environment..."
-    source $VENV_DIR/bin/activate
+#     echo "Activating virtual environment..."
+#     source $VENV_DIR/bin/activate
 
-    echo "Installing requirements..."
-    pip install -r $REQUIREMENTS_FILE
+#     echo "Installing requirements..."
+#     pip install -r $REQUIREMENTS_FILE
 
-    echo "Virtual environment is ready."
-}
+#     echo "Virtual environment is ready."
+# }
 
 # Function to update the .env file
 update_env_file() {
@@ -37,6 +37,10 @@ update_env_file() {
     echo ".env file has been updated."
 }
 
+build_exe() {
+    pyinstaller --distpath output/ -D -n parser_bot --contents-directory ../parser_bot main.py
+}
+
 # Check if an argument is provided
 if [ -z "$1" ]; then
     echo "Usage: $0 <command>"
@@ -49,24 +53,7 @@ fi
 
 # Process the command-line argument
 case "$1" in
-    install)
-        # Check if the virtual environment directory exists
-        if [ ! -d "$VENV_DIR" ]; then
-            create_venv
-        else
-            echo "Virtual environment already exists."
-        fi
-        ;;
-    run)
-        # Activate the virtual environment
-        if [ ! -d "$VENV_DIR" ]; then
-            echo "Virtual environment does not exist. Run 'install' first."
-            exit 1
-        fi
-
-        echo "Activating virtual environment..."
-        source $VENV_DIR/bin/activate
-        
+    run)       
         # Run the main script
         echo "Running $MAIN_SCRIPT..."
         python $MAIN_SCRIPT
@@ -78,7 +65,6 @@ case "$1" in
         echo "Invalid command: $1"
         echo "Usage: $0 <command>"
         echo "Commands:"
-        echo "  install - Create virtual environment and install dependencies"
         echo "  run     - Run the main script"
         echo "  set-env - Set TOKEN and CHANNEL_ID in the .env file"
         exit 1

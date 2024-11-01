@@ -15,8 +15,10 @@ class AbstractParser(ABC):
         self.last_news_item_id = None
         os.makedirs(f'{os.curdir}/{PARSER_NEWS_ID_DIR}', exist_ok=True)
         self.filepath = f'{os.curdir}/{PARSER_NEWS_ID_DIR}/{self.__name__}'
-        with open(self.filepath, 'w+') as f:
-            f.close()
+        if not os.path.exists(self.filepath):
+            logger.info(f'Creating file {self.filepath} for {self.__name__}')
+            with open(self.filepath, 'w+') as f:
+                f.close()
         logger.info(f'Initialized parser for {self.__name__}, file path: {self.filepath}')
 
     def get_last_news_item_from_url(self) -> dict:

@@ -1,25 +1,31 @@
 import os
 
 import telebot
-import threading
 import time
 from typing import List
 
 from bot_app.parsers import AbstractParser, RBCParser
 
-from dotenv import load_dotenv
-
-load_dotenv()
-TOKEN = os.getenv('TOKEN')  # Ваш токен
-CHANNEL_ID = os.getenv('CHANNEL_ID')    # Ваш логин канала
-
-bot = telebot.TeleBot(TOKEN)
+from dotenv import load_dotenv, set_key
 
 rbc_parser = RBCParser()
 
 NEWS_PARSERS: List[AbstractParser] = [
     rbc_parser,
 ]
+
+load_dotenv()
+
+for env_var_name in ['TOKEN', 'CHANNEL_ID']:
+    if not os.getenv(env_var_name):
+        value = input(f'Введите {env_var_name}: ')
+        os.environ.setdefault(env_var_name, value)
+        set_key('.env', env_var_name, value)
+
+TOKEN = os.getenv('TOKEN')  # Ваш токен
+CHANNEL_ID = os.getenv('CHANNEL_ID')    # Ваш логин канала
+
+bot = telebot.TeleBot(TOKEN)
 
 
 @bot.message_handler(content_types=['text'])
