@@ -38,7 +38,7 @@ update_env_file() {
 }
 
 build_exe() {
-    pyinstaller --distpath output/ -D -n parser_bot --contents-directory ../parser_bot main.py
+    pyinstaller --distpath output/ -D -n parser_bot --contents-directory . main.py
 }
 
 # Check if an argument is provided

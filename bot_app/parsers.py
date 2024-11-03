@@ -13,8 +13,8 @@ class AbstractParser(ABC):
 
     def __init__(self) -> None:
         self.last_news_item_id = None
-        os.makedirs(f'{os.curdir}/{PARSER_NEWS_ID_DIR}', exist_ok=True)
-        self.filepath = f'{os.curdir}/{PARSER_NEWS_ID_DIR}/{self.__name__}'
+        os.makedirs(f'{PARSER_NEWS_ID_DIR}', exist_ok=True)
+        self.filepath = os.path.abspath(f'{PARSER_NEWS_ID_DIR}/{self.__name__}')
         if not os.path.exists(self.filepath):
             logger.info(f'Creating file {self.filepath} for {self.__name__}')
             with open(self.filepath, 'w+') as f:
@@ -22,25 +22,41 @@ class AbstractParser(ABC):
         logger.info(f'Initialized parser for {self.__name__}, file path: {self.filepath}')
 
     def get_last_news_item_from_url(self) -> dict:
+        """
+        return: {
+                    'id': str,
+                    'title': str,
+                    'link': str
+                }
+        """
         raise NotImplementedError
 
     def store_last_news_item_id(self, id):
         logger.info(f'Storing last news item ID: {id}')
         with open(self.filepath, 'w') as file:
-            file.write(id)
+            file.write(str(id))
 
     def read_last_news_item_id(self):
+        logger.info(f'Reading old id from {self.filepath}')
         with open(self.filepath, 'r') as file:
             old_id = file.read()
         logger.info(f'Last news item ID retrieved: {old_id}')
         return old_id
+
+    def renew_flag(self, old_id, new_id):
+        if type(old_id) is not type(new_id):
+            old_id = str(old_id)
+            new_id = str(new_id)
+        if not old_id or old_id != new_id:
+            return True
+        return False
 
     def get_last_news_object(self):
         result = self.get_last_news_item_from_url()
         new_id = result['id']
         old_id = self.read_last_news_item_id()
 
-        if not old_id or old_id != new_id:
+        if self.renew_flag(old_id, new_id):
             self.store_last_news_item_id(new_id)
             logger.info(f'New news item found. ID: {new_id}, Title: {result["title"]}')
             return result
