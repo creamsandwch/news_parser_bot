@@ -61,12 +61,16 @@ case "$1" in
     set-env)
         update_env_file
         ;;
+    build_exe)
+        build_exe
+        ;;
     *)
         echo "Invalid command: $1"
         echo "Usage: $0 <command>"
         echo "Commands:"
         echo "  run     - Run the main script"
         echo "  set-env - Set TOKEN and CHANNEL_ID in the .env file"
+        echo "  build_exe - build .exe package"
         exit 1
         ;;
 esac
