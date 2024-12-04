@@ -8,7 +8,7 @@ import telebot
 from dotenv import load_dotenv, set_key
 
 from bot_app.log import logger
-from bot_app.parsers import AbstractParser, RBCParser
+from bot_app.parsers import AbstractParser, RBCParser, InvestingParser
 from bot_app.consts import PERIOD
 
 
@@ -74,11 +74,14 @@ class NewsParser:
 
 bot = telebot.TeleBot(TOKEN)
 rbc_parser = RBCParser()
+investing_parser = InvestingParser()
 news_parser_thread = NewsParser(
     [
-        rbc_parser
+        investing_parser,
+        # rbc_parser
     ]
 )
+
 
 @bot.message_handler(content_types=['text'])
 def commands(message):
