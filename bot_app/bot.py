@@ -73,7 +73,7 @@ class NewsParser:
 
 
 bot = telebot.TeleBot(TOKEN)
-rbc_parser = RBCParser()
+# rbc_parser = RBCParser()
 investing_parser = InvestingParser()
 news_parser_thread = NewsParser(
     [
