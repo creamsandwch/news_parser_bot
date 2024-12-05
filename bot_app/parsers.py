@@ -16,12 +16,19 @@ class AbstractParser(ABC):
     def __init__(self) -> None:
         self.last_news_item_id = None
         os.makedirs(f'{PARSER_NEWS_ID_DIR}', exist_ok=True)
-        self.filepath = os.path.abspath(f'{PARSER_NEWS_ID_DIR}/{self.__name__}')
+        self.filepath = os.path.abspath(
+            f'{PARSER_NEWS_ID_DIR}/{self.__name__}'
+        )
         if not os.path.exists(self.filepath):
             logger.info(f'Creating file {self.filepath} for {self.__name__}')
             with open(self.filepath, 'w+') as f:
                 f.close()
-        logger.info(f'Initialized parser for {self.__name__}, file path: {self.filepath}')
+        logger.info(
+            (
+                f'Initialized parser for {self.__name__},'
+                f'file path: {self.filepath}'
+            )
+        )
 
     def get_last_news_item_from_url(self) -> dict:
         """
@@ -122,7 +129,7 @@ class RBCParser(AbstractParser):
 
 class InvestingParser(AbstractParser):
     __name__ = 'investing.com_parser'
-    URL = 'https://ru.investing.com/news' 
+    URL = 'https://ru.investing.com/news/latest-news'
 
     def get_last_news_item_from_url(self) -> dict:
         response = requests.get(self.URL)
@@ -144,7 +151,7 @@ class InvestingParser(AbstractParser):
                 json_data = json.loads(script_tag.string)
 
                 # Извлекаем нужную информацию
-                breaking_news = json_data['props']['pageProps']['state']['newsStore']['_breakingNewsList']
+                breaking_news = json_data['props']['pageProps']['state']['newsStore']['_newsList']
                 if type(breaking_news) is list:
                     news_item = breaking_news[0]
                 else:

@@ -40,21 +40,21 @@ def find_key_path(data, key, path=None):
     return None
 
 # пример
-with open('cache', 'r', encoding='utf-8') as file:
-    html_content = file.read()
+# with open('cache', 'r', encoding='utf-8') as file:
+#     html_content = file.read()
 
 
-# Создаем объект BeautifulSoup
-soup = BeautifulSoup(html_content, 'html.parser')
+# # Создаем объект BeautifulSoup
+# soup = BeautifulSoup(html_content, 'html.parser')
 
-# Находим тег <script> с нужным id
-script_tag = soup.find('script', id='__NEXT_DATA__')
-json_data = json.loads(script_tag.string)
+# # Находим тег <script> с нужным id
+# script_tag = soup.find('script', id='__NEXT_DATA__')
+# json_data = json.loads(script_tag.string)
 
-target_value = "_breakingNewsList"
-path = find_key_path(json_data, target_value)
+# target_value = "_breakingNewsList"
+# path = find_key_path(json_data, target_value)
 
-if path is not None:
-    print(f"Путь к объекту: {path}")
-else:
-    print("Объект не найден.")
+# if path is not None:
+#     print(f"Путь к объекту: {path}")
+# else:
+#     print("Объект не найден.")
