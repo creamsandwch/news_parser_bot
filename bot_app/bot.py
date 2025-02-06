@@ -5,11 +5,15 @@ import threading
 from typing import List
 
 import telebot
+from telebot import formatting
 from dotenv import load_dotenv, set_key
 
 from bot_app.log import logger
-from bot_app.parsers import AbstractParser, RBCParser, InvestingParser
+from bot_app.parsers import AbstractParser
+from bot_app.scraping.parsers import InvestingParserSelenium
+# from bot_app.parsers import RBCParser
 from bot_app.consts import PERIOD
+from bot_app.scraping.selenium_funcs import get_article_text_selenium
 
 
 load_dotenv()
@@ -25,8 +29,6 @@ CHANNEL_ID = os.getenv('CHANNEL_ID')    # Ваш логин канала
 
 
 class NewsParser:
-    PERIOD = PERIOD
-
     def __init__(self, parsers: List[AbstractParser]):
         self.thread: threading.Thread = None
         self.start_ts = None
@@ -37,16 +39,38 @@ class NewsParser:
         time.sleep(delay)
         while self.is_running:
             for parser in self.parsers:
-                news_object = parser.get_last_news_object()
-                if news_object is not None:
-                    bot.send_message(
-                        chat_id=CHANNEL_ID,
-                        text='{}\n{}'.format(
-                            news_object.get('title'),
-                            news_object.get('link')
+                parser.get_last_news_object()
+
+                if not parser.deque:
+                    logger.info('No news object, skipping cycle')
+                    continue
+
+                copied_deque = parser.deque.copy()
+                news_object = copied_deque.popleft()
+                article_text = formatting.escape_markdown(
+                    get_article_text_selenium(news_object['link'])
+                )
+
+                if parser.deque:
+                    try:
+                        # сначала пытаемся запостить новость из очереди парсера
+                        text = (
+                            f'*{news_object.get("title")}*\n\n{article_text}\n'
+                            f'[Читать продолжение в источнике]({news_object.get("link")})'
                         )
-                    )
-            time.sleep(self.PERIOD)
+                        bot.send_message(
+                            chat_id=CHANNEL_ID,
+                            text=text,
+                            parse_mode='MarkdownV2'
+                        )
+
+                        # если получилось, забираем её из очереди на постинг
+                        parser.deque.popleft()
+                        parser.cache.add(news_object.get('id'))
+                        parser.store_last_news_item_id(news_object.get('id'))
+                    except Exception as e:
+                        logger.error('Exception on sending msg to channel: {}'.format(e))
+            time.sleep(PERIOD)
 
     def is_running(self):
         return self.thread is not None and self.thread.is_alive()
@@ -74,7 +98,7 @@ class NewsParser:
 
 bot = telebot.TeleBot(TOKEN)
 # rbc_parser = RBCParser()
-investing_parser = InvestingParser()
+investing_parser = InvestingParserSelenium()
 news_parser_thread = NewsParser(
     [
         investing_parser,

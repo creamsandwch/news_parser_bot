@@ -15,7 +15,7 @@ rotating_handler.setLevel(logging.INFO)  # Set file handler level to INFO
 
 # Create a console handler for DEBUG level logging
 console_handler = logging.StreamHandler()
-console_handler.setLevel(logging.DEBUG)  # Set console handler level to DEBUG
+console_handler.setLevel(logging.INFO)  # Set console handler level to DEBUG
 
 # Define the log format
 formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')

@@ -1,6 +1,10 @@
-import json
+import re
 
-from bs4 import BeautifulSoup
+
+def escape_markdown(text):
+    # Add '-' to the list of characters to escape
+    escape_chars = r'[_*`~[$$()<>#|{}.!-+]'
+    return re.sub(f'({escape_chars})', r'\\1', text)
 
 
 def find_key(data, key):
