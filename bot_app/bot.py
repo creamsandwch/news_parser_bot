@@ -47,6 +47,10 @@ class NewsParser:
 
                 copied_deque = parser.deque.copy()
                 news_object = copied_deque.popleft()
+                print('LOLOL', news_object)
+                if not news_object:
+                    logger.info('news object пустой, скип')
+                    continue
                 article_text = formatting.escape_markdown(
                     get_article_text_selenium(news_object['link'])
                 )

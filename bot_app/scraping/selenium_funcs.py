@@ -67,4 +67,4 @@ def get_article_text_selenium(newslink) -> str:
             'Не удалось получить текст статьи с {}: {}'.format(newslink, e)
         )
     finally:
-        driver.quit()  # Закрыть драйвер после завершения работы
+        driver.close()  # Закрыть драйвер после завершения работы

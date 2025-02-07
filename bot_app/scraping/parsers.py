@@ -26,6 +26,8 @@ class InvestingParserSelenium(AbstractParser):
         # Настройка Selenium
         super().__init__()
         self.options = Options()
+        self.options.add_argument('--ignore-certificate-errors')
+        self.options.add_argument('--ignore-ssl-errors')
         self.options.add_argument(
             (
                 "--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
@@ -37,16 +39,28 @@ class InvestingParserSelenium(AbstractParser):
         self.options.add_argument(
             '--disable-blink-features=AutomationControlled'
         )  # Отключение автоматизации
-        self.driver = webdriver.Chrome(
-            service=ChromeService(ChromeDriverManager().install()),
-            options=self.options
-        )
+        self.driver = None
+        self.start_driver()
+
+    def start_driver(self):
+        """Инициализация драйвера."""
+        if self.driver is None:
+            self.driver = webdriver.Chrome(
+                service=ChromeService(ChromeDriverManager().install()),
+                options=self.options
+            )
+
+    def stop_driver(self):
+        """Закрытие драйвера."""
+        if self.driver is not None:
+            self.driver.quit()
+            self.driver = None
 
     def get_last_news_item_from_url(self) -> dict:
         try:
             self.driver.get(self.URL)
             # Ожидание загрузки страницы и появления элементов новостей
-            news_element = WebDriverWait(self.driver, 30).until(
+            news_element = WebDriverWait(self.driver, 60).until(
                 EC.presence_of_element_located((By.XPATH, self.xpath))
             )
 
@@ -67,14 +81,9 @@ class InvestingParserSelenium(AbstractParser):
                 logger.error(f'{self.__name__}: не удалось найти элементы новостей на странице {self.URL}')
         except Exception as e:
             logger.error(f'Ошибка при парсинге: {e}')
-        finally:
-            self.driver.quit()  # Закрываем браузер после завершения
-
         return None
 
     def get_article_text_selenium(self, newslink) -> str:
-        self.driver.implicitly_wait(2)  # Устанавливаем неявное ожидание
-
         try:
             self.driver.get(newslink)
 
@@ -107,5 +116,6 @@ class InvestingParserSelenium(AbstractParser):
             logger.error(
                 'Не удалось получить текст статьи с {}: {}'.format(newslink, e)
             )
-        finally:
-            self.driver.quit()  # Закрыть драйвер после завершения работы
+
+    def close(self):
+        self.stop_driver()
