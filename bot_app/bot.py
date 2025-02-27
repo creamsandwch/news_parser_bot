@@ -13,7 +13,6 @@ from bot_app.parsers import AbstractParser
 from bot_app.scraping.parsers import InvestingParserSelenium
 # from bot_app.parsers import RBCParser
 from bot_app.consts import PERIOD
-from bot_app.scraping.selenium_funcs import get_article_text_selenium
 
 
 load_dotenv()
@@ -46,20 +45,23 @@ class NewsParser:
                     continue
 
                 copied_deque = parser.deque.copy()
-                news_object = copied_deque.popleft()
-                print('LOLOL', news_object)
+                news_object: dict = copied_deque.popleft()
                 if not news_object:
                     logger.info('news object пустой, скип')
                     continue
-                article_text = formatting.escape_markdown(
-                    get_article_text_selenium(news_object['link'])
-                )
+
+                raw_text = parser.get_article_text_selenium(news_object['link'])
+                if not raw_text:
+                    logger.error('Пустой текст статьи с {}'.format(news_object['link']))
+                    continue
+                article_text = formatting.escape_markdown(raw_text)
 
                 if parser.deque:
                     try:
                         # сначала пытаемся запостить новость из очереди парсера
                         text = (
-                            f'*{news_object.get("title")}*\n\n{article_text}\n'
+                            f'*{formatting.escape_markdown(news_object.get("title"))}*\n\n'
+                            f'{article_text}\n'
                             f'[Читать продолжение в источнике]({news_object.get("link")})'
                         )
                         bot.send_message(

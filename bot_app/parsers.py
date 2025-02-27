@@ -58,6 +58,9 @@ class AbstractParser(ABC):
         with open(self.filepath, 'r') as file:
             old_id = file.read()
         logger.info(f'Last news item ID retrieved: {old_id}')
+        if old_id not in self.cache:
+            logger.info('Adding old_id to cache')
+            self.cache.add(str(old_id))
         return old_id
 
     def renew_flag(self, old_id, new_id):
@@ -92,6 +95,7 @@ class AbstractParser(ABC):
 
         if self.renew_flag(old_id, new_id):
             self.deque.append(result)
+            self.cache.add(str(new_id))
             logger.info(f'New news item found. ID: {new_id}, Title: {result["title"]}')
         else:
             logger.info(f'No new news item found. Current ID: {old_id}, New ID: {new_id}')
