@@ -49,9 +49,15 @@ class AbstractParser(ABC):
         raise NotImplementedError
 
     def store_last_news_item_id(self, id):
-        logger.info(f'Storing last news item ID: {id}')
+        logger.info(f'Storing last news item ID: {id} to {self.filepath}')
         with open(self.filepath, 'w') as file:
             file.write(str(id))
+        self.cache.add(id)
+        logger.info(
+            'Adding news {} to parser {} cache'.format(
+               id, self.__name__
+            )
+        )
 
     def read_last_news_item_id(self):
         logger.info(f'Reading old id from {self.filepath}')
@@ -59,7 +65,11 @@ class AbstractParser(ABC):
             old_id = file.read()
         logger.info(f'Last news item ID retrieved: {old_id}')
         if old_id not in self.cache:
-            logger.info('Adding old_id to cache')
+            logger.info(
+                'Adding old_id {} to cache {}'.format(
+                    old_id, self.cache
+                )
+            )
             self.cache.add(str(old_id))
         return old_id
 
@@ -69,6 +79,12 @@ class AbstractParser(ABC):
             new_id = str(new_id)
         if (not old_id or old_id != new_id) and new_id not in self.cache:
             return True
+        if new_id in self.cache:
+            logger.info(
+                'new ID {} is found in cache: {}'.format(
+                    new_id, self.cache
+                )
+            )
         return False
 
     def get_last_news_object(self):
@@ -95,7 +111,6 @@ class AbstractParser(ABC):
 
         if self.renew_flag(old_id, new_id):
             self.deque.append(result)
-            self.cache.add(str(new_id))
             logger.info(f'New news item found. ID: {new_id}, Title: {result["title"]}')
         else:
             logger.info(f'No new news item found. Current ID: {old_id}, New ID: {new_id}')

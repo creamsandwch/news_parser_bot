@@ -39,6 +39,11 @@ update_env_file() {
 
 build_exe() {
     pyinstaller --distpath output/ -D -n parser_bot --contents-directory . main.py
+
+    echo "Copying selenium-stealth files..."
+    cp -r venv/Lib/site-packages/selenium_stealth output/parser_bot/selenium_stealth
+
+    echo "Build completed."
 }
 
 # Check if an argument is provided

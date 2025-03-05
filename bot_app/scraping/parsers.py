@@ -70,22 +70,22 @@ class InvestingParserSelenium(AbstractParser):
                 try:
                     WebDriverWait(driver, 60).until(
                         EC.presence_of_element_located(
-                            (By.CSS_SELECTOR, '#leftColumn > div.WYSIWYG.articlePage')
+                            (By.CSS_SELECTOR, '#article > div > div')
                         )
                     )
                 except TimeoutException:
                     logger.error(
-                        'Failed on waiting for #leftColumn > div.WYSIWYG.articlePage'
+                        'Failed on waiting for #article > div > div'
                     )
                     pass
 
                 # Получение HTML-кода страницы
                 soup = BeautifulSoup(driver.page_source, 'html.parser')
-                article_container = soup.select_one('#leftColumn > div.WYSIWYG.articlePage')
+                article_container = soup.select_one('#article > div > div')
 
                 if not article_container:
                     logger.warning(
-                        'Не найден CSS селектор #leftColumn > div.WYSIWYG.articlePage по ссылке {}'.format(newslink)
+                        'Не найден CSS селектор #article > div > div по ссылке {}'.format(newslink)
                     )
                     article_container = soup.select_one('article')
                     if not article_container:
@@ -135,6 +135,9 @@ class InvestingParserSelenium(AbstractParser):
                 #     article_text = article_text[cut_index + 1:]
 
                 # Обрезка текста до 2000 символов, если он слишком длинный
+                logger.info(
+                    'Successfully got article text from {}'.format(newslink)
+                )
                 if len(article_container.text) > 2000:
                     return f'{article_text[:2000]}...\n'
                 else:
@@ -142,5 +145,7 @@ class InvestingParserSelenium(AbstractParser):
 
             except ValueError as e:
                 logger.error(
-                    'Не удалось получить текст статьи с {}: {}'.format(newslink, e)
+                    'Не удалось получить текст статьи с {}: {}'.format(
+                        newslink, e
+                    )
                 )

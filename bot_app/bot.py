@@ -72,7 +72,6 @@ class NewsParser:
 
                         # если получилось, забираем её из очереди на постинг
                         parser.deque.popleft()
-                        parser.cache.add(news_object.get('id'))
                         parser.store_last_news_item_id(news_object.get('id'))
                     except Exception as e:
                         logger.error('Exception on sending msg to channel: {}'.format(e))
